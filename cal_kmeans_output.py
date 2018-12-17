@@ -1,7 +1,7 @@
    #! /usr/bin/env python
 #coding=utf-8
 
-#读取制作好的输入数据，利用kmeans聚类方法进行聚类分析，所得结果存储入.as    c文件中，非中国区域用-99标记
+#读取制作好的输入数据，利用kmeans聚类方法进行聚类分析，所得结果存储入.asc文件中，非中国区域用-99标记
 
 
 import datetime
