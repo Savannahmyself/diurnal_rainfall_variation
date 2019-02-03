@@ -1,4 +1,4 @@
-   #! /usr/bin/env python
+#! /usr/bin/env python
 #coding=utf-8
 
 #读取制作好的输入数据，利用kmeans聚类方法进行聚类分析，所得结果存储入.asc文件中，非中国区域用-99标记
@@ -24,7 +24,7 @@ yMin = 15.05
 yMax = yMin + 44
 dx = 0.1
 delta = 0.000001
-noDataValue = -9999
+noDataValue = -99
 num = nRows * nCols
 fmt = '%df' % (num,)
 
@@ -41,7 +41,7 @@ def Kmeans_analysis(filename,filepath,storepath):
 
     name = os.path.splitext(filename)[0]
     # 打开数据文件,将每个格网单元的24小时标准化年均降水频率和年均降水量数据存入analysis_data数据框中
-    analysis_data = pd.read_csv(filepath, usecols=range(24), header=None)
+    analysis_data = pd.read_csv(filepath, usecols=range(1, 7), header=None, skiprows=1)
 
     #计算不同聚类数的聚类结果，挑选最合适的作为最终的结果
     for n_digits in range(2, 31):
@@ -52,20 +52,21 @@ def Kmeans_analysis(filename,filepath,storepath):
         #   The final results will be the best output of n_init consecutive runs in terms of inertia.
 
         kmeans = KMeans(init='k-means++', n_clusters=n_digits, n_init=10)
+
         kmeans.fit(analysis_data)
 
         #    Obtain labels for each point in mesh. Use last trained model.
         Z_Value = []
         for i in range(len(analysis_data.iloc[:, 0])):
             # print(analysis_data.iloc[i])
-            Z = kmeans.predict(np.array(analysis_data.iloc[i]).reshape(1, 24))
+            Z = kmeans.predict(np.array(analysis_data.iloc[i]).reshape(1, 6))
             Z_Value.append(Z[0])
         #将聚类结果输出到.asc文件中
         file_output = storepath + "\\" + str(name) + "_"+str(n_digits) + ".asc"
         f = open(file_output, 'w')
         f.write(header)
         # 读取中国区域内的栅格数据
-        fn = r"H:\Academy\data\China_region_WGS84\China.tif"
+        fn = r"G:\rainfall_variation\China_new.tif"
         ds = gdal.Open(fn)
         extent_china = ds.ReadAsArray(0, 0, nCols, nRows)
 
@@ -89,8 +90,8 @@ def Kmeans_analysis(filename,filepath,storepath):
         f.close()
 
 if __name__ == '__main__':
-    path = r"H:\preci-extract\rainfall_variation\data_input_output\kmeans_1211\kmeans_input_data"
-    storepath = r"H:\preci-extract\rainfall_variation\data_input_output\kmeans_1211\kmeans_output_data"
+    path = r"G:\rainfall_variation\data_in_out_1228\data_input"
+    storepath = r"G:\rainfall_variation\data_in_out_1228\data_output"
     for filename in os.listdir(path):
         filepath = path + "\\" + filename
         Kmeans_analysis(filename, filepath, storepath)
